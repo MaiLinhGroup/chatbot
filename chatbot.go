@@ -12,6 +12,7 @@ type ChatBot interface {
 //BaseBot is base type for all chatbots
 type BaseBot struct {
 	//some basic informations/properties every chatbot should have
+
 }
 
 //DRVBot serves as personal assistant chatbot
@@ -21,6 +22,7 @@ type DRVBot struct {
 
 //ChatBotCfg is code representation of the content of the chatbot config file
 type ChatBotCfg struct {
+	configs map[string]BaseBot
 }
 
 //ReadChatBotCfg opens a config file with informations about the bot
