@@ -2,6 +2,13 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+)
+
+const (
+	fileName = "bot-config.txt"
 )
 
 //ChatBot interface with collections of methods defined for chatbots
@@ -29,7 +36,18 @@ type ChatBotCfg struct {
 //and stores the config informations
 func (cfg *ChatBotCfg) ReadChatBotCfg() {
 	//check if there is any config file to open
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		log.Fatal("File does not exist.")
+	}
+	log.Println("File does exist.")
+
 	//process file content and store content in cfg
+	data, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		log.Fatal("Cannot open the file to read it.")
+	}
+	log.Println("Data as string:")
+	log.Printf("%s\n", data)
 }
 
 //SetUpChatBot uses the chatbot information to set up the chat bot with
