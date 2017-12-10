@@ -2,9 +2,9 @@ FirstName Walter
 LastName Riester
 UserName RWalterBot
 ID 490569313
-token 490569313:AAEp10AaG9omULlCLEmA_Lp8QYhVchGvtgQ
+Token 490569313:AAEp10AaG9omULlCLEmA_Lp8QYhVchGvtgQ
 FirstName Nora
 LastName NFP
 UserName mainfpbot
 ID 396814645
-token 396814645:AAFRbxWDvahxyxXpNFpn9RtM0gWew7uyg7s
+Token 396814645:AAFRbxWDvahxyxXpNFpn9RtM0gWew7uyg7s
