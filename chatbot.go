@@ -36,18 +36,20 @@ type ChatBotCfg struct {
 //and stores the config informations
 func (cfg *ChatBotCfg) ReadChatBotCfg() {
 	//check if there is any config file to open
+	//if not exit, otherwise proceed
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
-		log.Fatal("File does not exist.")
+		log.Fatalf("File %v does not exist. You may check spelling?\n", fileName)
 	}
-	log.Println("File does exist.")
+	log.Printf("File %v does exist.\n", fileName)
 
-	//process file content and store content in cfg
+	//read the file as byte slice and convert to string
 	data, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		log.Fatal("Cannot open the file to read it.")
+		log.Fatalf("Cannot read %v\n.", fileName)
 	}
-	log.Println("Data as string:")
-	log.Printf("%s\n", data)
+	s := string(data)
+
+	fmt.Println(s)
 }
 
 //SetUpChatBot uses the chatbot information to set up the chat bot with
