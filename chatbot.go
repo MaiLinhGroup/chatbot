@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -20,16 +21,16 @@ type ChatBot interface {
 //BaseBot is base type for all chatbots
 type BaseBot struct {
 	//some basic informations/properties every chatbot should have
-	UserName string
-	ID       int
-	Token    string
+	FirstName string
+	LastName  string
+	UserName  string
+	ID        int
+	Token     string
 }
 
 //DRVBot serves as personal assistant chatbot
 type DRVBot struct {
 	BaseBot
-	FirstName string
-	LastName  string
 }
 
 //ChatBotCfg is code representation of the content of the chatbot config file
@@ -55,20 +56,38 @@ func (cfg *ChatBotCfg) ReadChatBotCfg() {
 	sdata := string(data)
 	fmt.Println(sdata)
 
-	//convert data to read line by line
+	//convert data and read line by line
 	tmp := strings.Split(sdata, "\n")
 	var line []string
-	var lines [][]string
+	var lines []string
 	for _, s := range tmp {
 		line = strings.Fields(s)
-		lines = append(lines, line)
+		lines = append(lines, line[1])
 	}
 	fmt.Println(lines)
 	fmt.Println(len(lines))
 
 	//create a map for chatbot config and instantiate the chatbot config with it
-	// m := make(map[string]BaseBot)
-	// cbCfg := ChatBotCfg{m}
+	cfg.configs = make(map[string]BaseBot)
+
+	//instatiate config for DRVBot
+	userid, _ := strconv.Atoi(lines[3])
+	cfg.configs["DRVBot"] = BaseBot{FirstName: lines[0],
+		LastName: lines[1],
+		UserName: lines[2],
+		ID:       userid,
+		Token:    lines[4]}
+
+	//instatiate config for NFPBot
+	userid, _ = strconv.Atoi(lines[8])
+	cfg.configs["NFPBot"] = BaseBot{FirstName: lines[5],
+		LastName: lines[6],
+		UserName: lines[7],
+		ID:       userid,
+		Token:    lines[9]}
+
+	fmt.Println(cfg.configs)
+	fmt.Println(len(cfg.configs))
 
 }
 
