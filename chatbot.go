@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -93,8 +94,9 @@ func (cfg *ChatBotCfg) ReadChatBotCfg() {
 
 //SetUpChatBot uses the chatbot information to set up the chat bot with
 //a chatbot API (e.g. Telegram-Bot-API)
-func SetUpChatBot(cb ChatBot) {
-
+func CreateChatBot() (*BaseBot, error) {
+	err := errors.New("Must fail")
+	return &BaseBot{}, err
 }
 
 func main() {

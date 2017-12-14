@@ -16,4 +16,23 @@ func TestReadChatBotCfg(t *testing.T) {
 
 	//Then
 	assert.Len(t, cfg.configs, 2)
+	assert.Contains(t, cfg.configs, "DRVBot")
+	assert.NotContains(t, cfg.configs, "Hase")
+}
+
+func TestCreateChatBot(t *testing.T) {
+	//Given
+	iBot := &BaseBot{
+		FirstName: "Walter",
+		LastName:  "Riester",
+		UserName:  "RWalterBot",
+		ID:        490569313,
+		Token:     "490569313:AAEp10AaG9omULlCLEmA_Lp8QYhVchGvtgQ",
+	}
+	//When
+	bot, err := CreateChatBot()
+
+	//Then
+	assert.NoError(t, err)
+	assert.Equal(t, iBot, bot)
 }
