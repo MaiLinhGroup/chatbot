@@ -20,7 +20,7 @@ func TestReadChatBotCfg(t *testing.T) {
 	assert.NotContains(t, cfg.configs, "Hase")
 }
 
-func TestCreateChatBot(t *testing.T) {
+func TestCreateNewChatBot(t *testing.T) {
 	//Given
 	iBot := &BaseBot{
 		FirstName: "Walter",
@@ -30,7 +30,7 @@ func TestCreateChatBot(t *testing.T) {
 		Token:     "490569313:AAEp10AaG9omULlCLEmA_Lp8QYhVchGvtgQ",
 	}
 	//When
-	bot, err := CreateChatBot()
+	bot, err := CreateNewChatBot()
 
 	//Then
 	assert.NoError(t, err)

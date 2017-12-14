@@ -92,9 +92,8 @@ func (cfg *ChatBotCfg) ReadChatBotCfg() {
 
 }
 
-//SetUpChatBot uses the chatbot information to set up the chat bot with
-//a chatbot API (e.g. Telegram-Bot-API)
-func CreateChatBot() (*BaseBot, error) {
+//CreateNewChatBot to create a new chatbot
+func CreateNewChatBot() (*BaseBot, error) {
 	err := errors.New("Must fail")
 	return &BaseBot{}, err
 }
