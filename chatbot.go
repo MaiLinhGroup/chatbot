@@ -1,13 +1,14 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+
+	"gopkg.in/telegram-bot-api.v4"
 )
 
 const (
@@ -55,7 +56,7 @@ func (cfg *ChatBotCfg) ReadChatBotCfg() {
 		log.Fatalf("Cannot read %v\n.", fileName)
 	}
 	sdata := string(data)
-	fmt.Println(sdata)
+	// fmt.Println(sdata)
 
 	//convert data and read line by line
 	tmp := strings.Split(sdata, "\n")
@@ -65,8 +66,8 @@ func (cfg *ChatBotCfg) ReadChatBotCfg() {
 		line = strings.Fields(s)
 		lines = append(lines, line[1])
 	}
-	fmt.Println(lines)
-	fmt.Println(len(lines))
+	// fmt.Println(lines)
+	// fmt.Println(len(lines))
 
 	//create a map for chatbot config and instantiate the chatbot config with it
 	cfg.configs = make(map[string]BaseBot)
@@ -87,17 +88,69 @@ func (cfg *ChatBotCfg) ReadChatBotCfg() {
 		ID:       userid,
 		Token:    lines[9]}
 
-	fmt.Println(cfg.configs)
-	fmt.Println(len(cfg.configs))
+	// fmt.Println(cfg.configs)
+	// fmt.Println(len(cfg.configs))
 
 }
 
-//CreateNewChatBot to create a new chatbot
-func CreateNewChatBot() (*BaseBot, error) {
-	err := errors.New("Must fail")
-	return &BaseBot{}, err
+//GetNewChatBot to create a new chatbot
+func GetNewChatBot(bcfg BaseBot) (*tgbotapi.BotAPI, error) {
+	//create bot with Telegram Bot API
+	bot, err := tgbotapi.NewBotAPI(bcfg.Token)
+	if err != nil {
+		log.Panic(err)
+	}
+	//enable debug mode
+	bot.Debug = true
+
+	//edit bot credits
+	bot.Self.FirstName = bcfg.FirstName
+	bot.Self.LastName = bcfg.LastName
+	bot.Self.UserName = bcfg.UserName
+	bot.Self.ID = bcfg.ID
+
+	return bot, err
 }
 
 func main() {
 	fmt.Println("chat bot main func")
+
+	cbCfg := &ChatBotCfg{}
+	cbCfg.ReadChatBotCfg()
+
+	walter := cbCfg.configs["DRVBot"]
+	if walter.ID != 490569313 {
+		return
+	}
+
+	bot, err := GetNewChatBot(walter)
+	if err != nil {
+		return
+	}
+	log.Printf("Hello from your telegram bot %v %v!", bot.Self.FirstName, bot.Self.LastName)
+	log.Printf("Authorized on account %v with id: %v", bot.Self.UserName, bot.Self.ID)
+
+	uCfg := tgbotapi.NewUpdate(0)
+	uCfg.Timeout = 60
+
+	updates, err := bot.GetUpdatesChan(uCfg)
+
+	for update := range updates {
+		if update.Message == nil {
+			continue
+		}
+		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+
+		if update.Message.Command() == "start" {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello from your telegram bot "+bot.Self.FirstName+" "+bot.Self.LastName+"!\nHow can I help you?")
+			bot.Send(msg)
+			continue
+		}
+
+		//TODO: Jira notification goes here
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+		msg.ReplyToMessageID = update.Message.MessageID
+
+		bot.Send(msg)
+	}
 }
