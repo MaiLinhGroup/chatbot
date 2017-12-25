@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/robfig/cron"
 	"gopkg.in/telegram-bot-api.v4"
 )
 
@@ -93,7 +94,7 @@ func (cfg *ChatBotCfg) ReadChatBotCfg() {
 
 }
 
-//GetNewChatBot to create a new chatbot
+//GetNewChatBot creates a chatbot with the Telegram Bot API
 func GetNewChatBot(bcfg BaseBot) (*tgbotapi.BotAPI, error) {
 	//create bot with Telegram Bot API
 	bot, err := tgbotapi.NewBotAPI(bcfg.Token)
@@ -112,8 +113,19 @@ func GetNewChatBot(bcfg BaseBot) (*tgbotapi.BotAPI, error) {
 	return bot, err
 }
 
+//RemindUser sends User a message without a user interaction beforehand
+func RemindUser() {
+	//should remind user to to something, now just say something
+	c := cron.New()
+	c.AddFunc("@every 0h01m30s", func() { fmt.Println("Every minute and thirty seconds") })
+	c.Start()
+
+}
+
 func main() {
 	fmt.Println("chat bot main func")
+
+	RemindUser()
 
 	cbCfg := &ChatBotCfg{}
 	cbCfg.ReadChatBotCfg()
@@ -147,7 +159,6 @@ func main() {
 			continue
 		}
 
-		//TODO: Jira notification goes here
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 		msg.ReplyToMessageID = update.Message.MessageID
 
