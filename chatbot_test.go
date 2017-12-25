@@ -44,8 +44,3 @@ func TestGetNewChatBot(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, iBot.ID, bot.Self.ID)
 }
-
-func TestRemindUser(t *testing.T) {
-	RemindUser()
-	assert.True(t, true)
-}

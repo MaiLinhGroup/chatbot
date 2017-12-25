@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/robfig/cron"
+
 	"gopkg.in/telegram-bot-api.v4"
 )
 
@@ -34,6 +35,7 @@ type BaseBot struct {
 //DRVBot serves as personal assistant chatbot
 type DRVBot struct {
 	BaseBot
+	PassPhrase string
 }
 
 //ChatBotCfg is code representation of the content of the chatbot config file
@@ -113,19 +115,15 @@ func GetNewChatBot(bcfg BaseBot) (*tgbotapi.BotAPI, error) {
 	return bot, err
 }
 
-//RemindUser sends User a message without a user interaction beforehand
-func RemindUser() {
-	//should remind user to to something, now just say something
-	c := cron.New()
-	c.AddFunc("@every 0h01m30s", func() { fmt.Println("Every minute and thirty seconds") })
-	c.Start()
-
-}
-
 func main() {
 	fmt.Println("chat bot main func")
 
-	RemindUser()
+	//flags
+	var card bool
+
+	//cron job runner
+	c := cron.New()
+	c.Start()
 
 	cbCfg := &ChatBotCfg{}
 	cbCfg.ReadChatBotCfg()
@@ -151,17 +149,33 @@ func main() {
 		if update.Message == nil {
 			continue
 		}
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-		if update.Message.Command() == "start" {
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello from your telegram bot "+bot.Self.FirstName+" "+bot.Self.LastName+"!\nHow can I help you?")
+		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		//check if user message contains a command
+		switch update.Message.Command() {
+		case "start":
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello "+update.Message.From.UserName+", my name is "+bot.Self.FirstName+" "+bot.Self.LastName+"!\nHow can I help you?")
 			bot.Send(msg)
-			continue
+		case "entry":
+			if card {
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Sorry "+update.Message.From.UserName+", you already started this job.")
+				msg.ReplyToMessageID = update.Message.MessageID
+				bot.Send(msg)
+				continue
+			}
+			card = true
+			//Fire at 07:15 AM every Monday, Tuesday, Wednesday, Thursday and Friday
+			c.AddFunc("0 15 7 ? * MON-FRI", func() {
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hey "+update.Message.From.FirstName+", don't forget your entry cards and have a nice day honey bun!")
+				bot.Send(msg)
+			})
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Start cron job: entry")
+			bot.Send(msg)
+		default:
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Sorry "+update.Message.From.UserName+", I did not understand you.")
+			msg.ReplyToMessageID = update.Message.MessageID
+			bot.Send(msg)
 		}
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
-
-		bot.Send(msg)
 	}
 }
