@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,6 +15,11 @@ import (
 const (
 	fileName = "bot-config.txt"
 )
+
+//var used as flags
+var card, clarity bool
+
+var chatID int64
 
 //ChatBot interface with collections of methods defined for chatbots
 type ChatBot interface {
@@ -115,16 +119,59 @@ func GetNewChatBot(bcfg BaseBot) (*tgbotapi.BotAPI, error) {
 	return bot, err
 }
 
-func main() {
-	fmt.Println("chat bot main func")
+func chat(bot *tgbotapi.BotAPI, chatMsg string) {
+	msg := tgbotapi.NewMessage(chatID, chatMsg)
+	bot.Send(msg)
+}
 
-	//flags
-	var card bool
-
+func interactionWithUser(bot *tgbotapi.BotAPI) {
 	//cron job runner
 	c := cron.New()
 	c.Start()
 
+	uCfg := tgbotapi.NewUpdate(0)
+	uCfg.Timeout = 60
+
+	updates, _ := bot.GetUpdatesChan(uCfg)
+
+	for update := range updates {
+		if update.Message == nil {
+			continue
+		}
+
+		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+
+		//check if user message contains a command
+		switch update.Message.Command() {
+		case "start":
+			chatID = update.Message.Chat.ID
+			chat(bot, "Hello "+update.Message.From.UserName+"! My name is "+bot.Self.FirstName+" "+bot.Self.LastName+" and I am your telegram bot!\nHow can I help you?")
+		case "entry":
+			if card {
+				chat(bot, "Sorry "+update.Message.From.UserName+", you already started this job.")
+				continue
+			}
+			card = true
+			//Fire at 07:15 AM every Monday, Tuesday, Wednesday, Thursday and Friday
+			c.AddFunc("0 15 7 ? * MON-FRI", func() {
+				chat(bot, "Hey "+update.Message.From.FirstName+", don't forget your entry cards and have a nice day honey bun!")
+			})
+			chat(bot, "Start cron job: entry")
+		default:
+			chat(bot, "Sorry "+update.Message.From.UserName+", I did not understand you.")
+		}
+
+		//Fire at 10:15 AM on the last Friday of every month
+		if !clarity {
+			c.AddFunc("0 15 10 ? * 6L", func() {
+				chat(bot, "Clarity: please forecast")
+			})
+			clarity = true
+		}
+	}
+}
+
+func main() {
 	cbCfg := &ChatBotCfg{}
 	cbCfg.ReadChatBotCfg()
 
@@ -137,45 +184,9 @@ func main() {
 	if err != nil {
 		return
 	}
+
 	log.Printf("Hello from your telegram bot %v %v!", bot.Self.FirstName, bot.Self.LastName)
 	log.Printf("Authorized on account %v with id: %v", bot.Self.UserName, bot.Self.ID)
 
-	uCfg := tgbotapi.NewUpdate(0)
-	uCfg.Timeout = 60
-
-	updates, err := bot.GetUpdatesChan(uCfg)
-
-	for update := range updates {
-		if update.Message == nil {
-			continue
-		}
-
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-		//check if user message contains a command
-		switch update.Message.Command() {
-		case "start":
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello "+update.Message.From.UserName+", my name is "+bot.Self.FirstName+" "+bot.Self.LastName+"!\nHow can I help you?")
-			bot.Send(msg)
-		case "entry":
-			if card {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Sorry "+update.Message.From.UserName+", you already started this job.")
-				msg.ReplyToMessageID = update.Message.MessageID
-				bot.Send(msg)
-				continue
-			}
-			card = true
-			//Fire at 07:15 AM every Monday, Tuesday, Wednesday, Thursday and Friday
-			c.AddFunc("0 15 7 ? * MON-FRI", func() {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hey "+update.Message.From.FirstName+", don't forget your entry cards and have a nice day honey bun!")
-				bot.Send(msg)
-			})
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Start cron job: entry")
-			bot.Send(msg)
-		default:
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Sorry "+update.Message.From.UserName+", I did not understand you.")
-			msg.ReplyToMessageID = update.Message.MessageID
-			bot.Send(msg)
-		}
-
-	}
+	interactionWithUser(bot)
 }
