@@ -16,10 +16,8 @@ const (
 	fileName = "bot-config.txt"
 )
 
-//var used as flags
-var card, clarity bool
-
 var chatID int64
+var userName string
 
 //ChatBot interface with collections of methods defined for chatbots
 type ChatBot interface {
@@ -135,38 +133,125 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 	updates, _ := bot.GetUpdatesChan(uCfg)
 
 	for update := range updates {
+		//debug purpose
+		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+
+		//no message: do nothing and wait for user interaction
 		if update.Message == nil {
 			continue
 		}
 
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
 		//check if user message contains a command
+		if !update.Message.IsCommand() {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Sorry, I didn't understand you.")
+			msg.ReplyToMessageID = update.Message.MessageID
+			bot.Send(msg)
+			continue
+		}
+		//commands
 		switch update.Message.Command() {
 		case "start":
 			chatID = update.Message.Chat.ID
-			chat(bot, "Hello "+update.Message.From.UserName+"! My name is "+bot.Self.FirstName+" "+bot.Self.LastName+" and I am your telegram bot!\nHow can I help you?")
-		case "entry":
-			if card {
-				chat(bot, "Sorry "+update.Message.From.UserName+", you already started this job.")
+			userName = update.Message.From.UserName
+			chat(bot, "Hello "+userName+"! My name is "+bot.Self.FirstName+" "+bot.Self.LastName+" and I'm your telegram bot.\nNow we know each other, how can I help you?")
+		case "help":
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please introduce yourself and start a conversation with me by entering the command /start.\nAfter that you get a list of available commands by type in /commands .Some commands need further arguments, and some additionally need you to authenticate yourself!")
+			bot.Send(msg)
+		case "reminder":
+			if chatID == 0 {
 				continue
 			}
-			card = true
-			//Fire at 07:15 AM every Monday, Tuesday, Wednesday, Thursday and Friday
-			c.AddFunc("0 15 7 ? * MON-FRI", func() {
-				chat(bot, "Hey "+update.Message.From.FirstName+", don't forget your entry cards and have a nice day honey bun!")
-			})
-			chat(bot, "Start cron job: entry")
-		default:
-			chat(bot, "Sorry "+update.Message.From.UserName+", I did not understand you.")
-		}
+			args := update.Message.CommandArguments()
 
-		//Fire at 10:15 AM on the last Friday of every month
-		if !clarity {
-			c.AddFunc("0 15 10 ? * 6L", func() {
-				chat(bot, "Clarity: please forecast")
+			if args == "" {
+				chat(bot, "Well you forget to tell me when and what I should remind you to do.\nLet's have another try ;)!")
+				continue
+			}
+
+			argsS := strings.Split(args, ":")
+			if len(argsS) < 2 {
+				chat(bot, "Not enough arguments, I need you to tell me when and what I should remind you to do.\nLet's have another try ;)!")
+				continue
+			}
+
+			cExpr := argsS[0]
+			cause := argsS[1]
+
+			//default cause
+			if cause == "" {
+				err := c.AddFunc(cExpr, func() {
+					chat(bot, "Hi "+userName+", you're not my supervisor!\nI should remind you to do something,but I forget what it was, so just do it ;)!")
+				})
+				if err != nil {
+					chat(bot, "Reminder job cancelled because something went wrong with the cron expression "+cExpr)
+					continue
+				}
+
+				chat(bot, "Ok, cron job "+cExpr+" is added.")
+				chat(bot, "Well you forget to tell me when and what I should remind you to do.\nLet's have another try ;)!")
+				continue
+			}
+
+			argsS := strings.Split(args, ":")
+			if len(argsS) < 2 {
+				chat(bot, "Not enough arguments, I need you to tell me when and what I should remind you to do.\nLet's have another try ;)!")
+				continue
+			}
+
+			cExpr := argsS[0]
+			cause := argsS[1]
+
+			//default cause
+			if cause == "" {
+				err := c.AddFunc(cExpr, func() {
+					chat(bot, "Hi "+userName+", you're not my supervisor!\nI should remind you to do something,but I forget what it was, so just do it ;)!")
+				})
+				if err != nil {
+					chat(bot, "Reminder job cancelled because something went wrong with the cron expression "+cExpr)
+					continue
+				}
+
+				chat(bot, "Ok, cron job "+cExpr+" is added.")
+				continue
+			}
+
+			//specific cause
+			err := c.AddFunc(cExpr, func() {
+				chat(bot, "Hi "+userName+", here is "+bot.Self.FirstName+". I should remind you to do this: \n"+cause)
 			})
-			clarity = true
+			if err != nil {
+				chat(bot, "Reminder job cancelled because something went wrong with the cron expression "+cExpr)
+				continue
+			}
+			chat(bot, "Ok, cron job "+cExpr+" is added and the reason is :\n"+cause)
+		case "stop":
+			args := update.Message.CommandArguments()
+			if args == "reminder" && userName == "MLEdith" {
+				c.Stop()
+				chat(bot, "Stop all reminder cron jobs.")
+			}
+		case "restart":
+			args := update.Message.CommandArguments()
+			if args == "reminder" && userName == "MLEdith" {
+				c.Start()
+				chat(bot, "Restart all reminder cron jobs.")
+			}
+		case "delete":
+			args := update.Message.CommandArguments()
+			if args == "reminder" && userName == "MLEdith" {
+				c.Stop()
+				c = nil
+				chat(bot, "Delete all reminder cron jobs.")
+			}
+		case "new":
+			args := update.Message.CommandArguments()
+			if args == "reminder" && userName == "MLEdith" {
+				c = cron.New()
+				c.Start()
+				chat(bot, "New cron job runner.")
+			}
+		default:
+			chat(bot, "Sorry the command "+update.Message.Text+" is not available yet or unknown.")
 		}
 	}
 }
@@ -177,6 +262,7 @@ func main() {
 
 	walter := cbCfg.configs["DRVBot"]
 	if walter.ID != 490569313 {
+		log.Println("Missmatch, please check the bot ID.")
 		return
 	}
 
