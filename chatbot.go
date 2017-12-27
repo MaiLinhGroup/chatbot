@@ -164,14 +164,14 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 			args := update.Message.CommandArguments()
 
 			if args == "" {
-				chat(bot, "Well you forget to tell me when and what I should remind you to do.\nLet's have another try ;)!")
+				chat(bot, "Well you forget to tell me when (valid cron expression) and what (separate by the when by a colon) I should remind you to do.\nLet's have another try ;)!")
 				continue
 			}
 
 			argsS := strings.Split(args, ":")
 
 			if len(argsS) < 2 {
-				chat(bot, "Not enough arguments, I need you to tell me when and what I should remind you to do.\nLet's have another try ;)!")
+				chat(bot, "Not enough arguments for the reminder. I need a valid cron expression followed by a colon and then the reason for the reminder.\nLet's have another try ;)!")
 				continue
 			}
 
