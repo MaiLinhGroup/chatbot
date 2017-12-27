@@ -148,19 +148,19 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 			bot.Send(msg)
 			continue
 		}
+
 		//commands
+		chatID = update.Message.Chat.ID
+		userName = update.Message.From.UserName
+		if userName == "" {
+			userName = update.Message.From.FirstName
+		}
 		switch update.Message.Command() {
 		case "start":
-			chatID = update.Message.Chat.ID
-			userName = update.Message.From.UserName
 			chat(bot, "Hello "+userName+"! My name is "+bot.Self.FirstName+" "+bot.Self.LastName+" and I'm your telegram bot.\nNow we know each other, how can I help you?")
 		case "help":
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please introduce yourself and start a conversation with me by entering the command /start.\nAfter that you get a list of available commands by type in /commands .Some commands need further arguments, and some additionally need you to authenticate yourself!")
-			bot.Send(msg)
+			chat(bot, "You can get a list of available commands by type in /commands.\nSome commands need further arguments, and some additionally need you to authenticate yourself!")
 		case "reminder":
-			if chatID == 0 {
-				continue
-			}
 			args := update.Message.CommandArguments()
 
 			if args == "" {
@@ -169,6 +169,7 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 			}
 
 			argsS := strings.Split(args, ":")
+
 			if len(argsS) < 2 {
 				chat(bot, "Not enough arguments, I need you to tell me when and what I should remind you to do.\nLet's have another try ;)!")
 				continue
@@ -180,31 +181,7 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 			//default cause
 			if cause == "" {
 				err := c.AddFunc(cExpr, func() {
-					chat(bot, "Hi "+userName+", you're not my supervisor!\nI should remind you to do something,but I forget what it was, so just do it ;)!")
-				})
-				if err != nil {
-					chat(bot, "Reminder job cancelled because something went wrong with the cron expression "+cExpr)
-					continue
-				}
-
-				chat(bot, "Ok, cron job "+cExpr+" is added.")
-				chat(bot, "Well you forget to tell me when and what I should remind you to do.\nLet's have another try ;)!")
-				continue
-			}
-
-			argsS := strings.Split(args, ":")
-			if len(argsS) < 2 {
-				chat(bot, "Not enough arguments, I need you to tell me when and what I should remind you to do.\nLet's have another try ;)!")
-				continue
-			}
-
-			cExpr := argsS[0]
-			cause := argsS[1]
-
-			//default cause
-			if cause == "" {
-				err := c.AddFunc(cExpr, func() {
-					chat(bot, "Hi "+userName+", you're not my supervisor!\nI should remind you to do something,but I forget what it was, so just do it ;)!")
+					chat(bot, "Hi "+userName+", you're not my supervisor!\nI should remind you to do something,but I forget what it was, so whatever, just do it :P!")
 				})
 				if err != nil {
 					chat(bot, "Reminder job cancelled because something went wrong with the cron expression "+cExpr)
@@ -217,13 +194,13 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 
 			//specific cause
 			err := c.AddFunc(cExpr, func() {
-				chat(bot, "Hi "+userName+", here is "+bot.Self.FirstName+". I should remind you to do this: \n"+cause)
+				chat(bot, "Hi "+userName+", here is "+bot.Self.FirstName+". Don't forget to do this: \n"+cause)
 			})
 			if err != nil {
 				chat(bot, "Reminder job cancelled because something went wrong with the cron expression "+cExpr)
 				continue
 			}
-			chat(bot, "Ok, cron job "+cExpr+" is added and the reason is :\n"+cause)
+			chat(bot, "Ok, cron job "+cExpr+" is added and the reminder is:\n"+cause)
 		case "stop":
 			args := update.Message.CommandArguments()
 			if args == "reminder" && userName == "MLEdith" {
