@@ -242,6 +242,14 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 	}
 }
 
+//TravelTime calculates the travel time starting from leaving the house door and entering the workplace and vise versa.
+//The rules for calculation is:
+//
+func TravelTime(t ...string) (duration string) {
+	duration = ""
+	return
+}
+
 func main() {
 	cbCfg := &ChatBotCfg{}
 	cbCfg.ReadChatBotCfg()
