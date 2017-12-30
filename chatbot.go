@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	fileName = "bot-config.txt"
+	fileName  = "bot-config.txt"
+	denialTxt = "Sorry, we should get to know each other better before I can do this with you."
 )
 
 var chatID int64
@@ -203,30 +204,38 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 			chat(bot, "Ok, cron job "+cExpr+" is added and the reminder is:\n"+cause)
 		case "stop":
 			args := update.Message.CommandArguments()
-			if args == "reminder" && userName == "MLEdith" {
+			if args == "reminder" {
 				c.Stop()
-				chat(bot, "Stop all reminder cron jobs.")
+				chat(bot, "Stop all available reminder cron jobs.")
+				continue
 			}
+			chat(bot, "This command needs an argument, please try again.")
 		case "restart":
 			args := update.Message.CommandArguments()
-			if args == "reminder" && userName == "MLEdith" {
+			if args == "reminder" {
 				c.Start()
-				chat(bot, "Restart all reminder cron jobs.")
+				chat(bot, "Restart all available reminder cron jobs.")
+				continue
 			}
+			chat(bot, "This command needs an argument, please try again.")
 		case "delete":
 			args := update.Message.CommandArguments()
-			if args == "reminder" && userName == "MLEdith" {
+			if args == "reminder" && update.Message.From.UserName == "MLEdith" {
 				c.Stop()
 				c = nil
-				chat(bot, "Delete all reminder cron jobs.")
+				c = cron.New()
+				chat(bot, update.Message.From.UserName+": Delete all reminder cron jobs.")
+				continue
 			}
+			chat(bot, denialTxt)
 		case "new":
 			args := update.Message.CommandArguments()
-			if args == "reminder" && userName == "MLEdith" {
-				c = cron.New()
+			if args == "reminder" && update.Message.From.UserName == "MLEdith" {
 				c.Start()
-				chat(bot, "New cron job runner.")
+				chat(bot, update.Message.From.UserName+": New cron job runner.")
+				continue
 			}
+			chat(bot, denialTxt)
 		default:
 			chat(bot, "Sorry the command "+update.Message.Text+" is not available yet or unknown.")
 		}
