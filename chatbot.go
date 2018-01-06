@@ -1,35 +1,46 @@
 package main
 
+import (
+	"log"
+
+	tgBotAPI "github.com/go-telegram-bot-api/telegram-bot-api"
+)
+
 const (
 	//@ChatLotteBot
 	botAPIToken = "503887514:AAHOnl7OiyDk6oBPvHuJBEadlBOxFTnGxlk"
 )
 
-// func main() {
-// 	bot, err := tgbotapi.NewBotAPI(botAPIToken)
-// 	if err != nil {
-// 		log.Panic(err)
-// 	}
+type ChatBot struct {
+	bot      *tgBotAPI.BotAPI
+	password string
+}
 
-// 	bot.Debug = true
+func (me *ChatBot) Start() error {
+	bot, err := tgBotAPI.NewBotAPI(botAPIToken)
+	me.bot = bot
 
-// 	log.Printf("Authorized on account %s", bot.Self.UserName)
+	bot.Debug = true
 
-// 	u := tgbotapi.NewUpdate(0)
-// 	u.Timeout = 60
+	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-// 	updates, err := bot.GetUpdatesChan(u)
+	u := tgBotAPI.NewUpdate(0)
+	u.Timeout = 60
 
-// 	for update := range updates {
-// 		if update.Message == nil {
-// 			continue
-// 		}
+	updates, err := bot.GetUpdatesChan(u)
 
-// 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+	for update := range updates {
+		if update.Message == nil {
+			continue
+		}
 
-// 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-// 		msg.ReplyToMessageID = update.Message.MessageID
+		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-// 		bot.Send(msg)
-// 	}
-// }
+		msg := tgBotAPI.NewMessage(update.Message.Chat.ID, update.Message.Text)
+		msg.ReplyToMessageID = update.Message.MessageID
+
+		bot.Send(msg)
+	}
+
+	return err
+}
