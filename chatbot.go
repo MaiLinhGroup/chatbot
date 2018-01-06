@@ -9,6 +9,7 @@ import (
 const (
 	//@ChatLotteBot
 	botAPIToken = "503887514:AAHOnl7OiyDk6oBPvHuJBEadlBOxFTnGxlk"
+	botPassword = "test"
 )
 
 type ChatBot struct {
@@ -16,18 +17,22 @@ type ChatBot struct {
 	password string
 }
 
-func (me *ChatBot) Start() error {
+func (me *ChatBot) NewChatBot() error {
 	bot, err := tgBotAPI.NewBotAPI(botAPIToken)
 	me.bot = bot
+	me.password = botPassword
+	return err
+}
 
-	bot.Debug = true
+func (me *ChatBot) Start() error {
+	me.bot.Debug = true
 
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	log.Printf("Authorized on account %s", me.bot.Self.UserName)
 
 	u := tgBotAPI.NewUpdate(0)
 	u.Timeout = 60
 
-	updates, err := bot.GetUpdatesChan(u)
+	updates, err := me.bot.GetUpdatesChan(u)
 
 	for update := range updates {
 		if update.Message == nil {
@@ -39,7 +44,7 @@ func (me *ChatBot) Start() error {
 		msg := tgBotAPI.NewMessage(update.Message.Chat.ID, update.Message.Text)
 		msg.ReplyToMessageID = update.Message.MessageID
 
-		bot.Send(msg)
+		me.bot.Send(msg)
 	}
 
 	return err
