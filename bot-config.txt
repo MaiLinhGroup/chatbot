@@ -1,5 +1,0 @@
-FirstName Walter
-LastName Riester
-UserName RWalterBot
-ID 490569313
-Token 490569313:AAEp10AaG9omULlCLEmA_Lp8QYhVchGvtgQ
