@@ -165,7 +165,7 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 			args := update.Message.CommandArguments()
 
 			if args == "" {
-				chat(bot, "Well you forget to tell me when (valid cron expression) and what (separate by the when by a colon) I should remind you to do.\nLet's have another try ;)!")
+				chat(bot, "You forgot to tell me when and what I should remind you to do.\nI need a valid cron expression followed by a colon and then the reason for the reminder.\nLet's have another try ;)!")
 				continue
 			}
 
@@ -182,7 +182,7 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 			//default cause
 			if cause == "" {
 				err := c.AddFunc(cExpr, func() {
-					chat(bot, "Hi "+userName+", you're not my supervisor!\nI should remind you to do something,but I forget what it was, so whatever, just do it :P!")
+					chat(bot, "Hey "+userName+", you're not my supervisor!\nWell I'd remind you to do something,but I forgot what it was, so whatever, just do it :P!")
 				})
 				if err != nil {
 					chat(bot, "Reminder job cancelled because something went wrong with the cron expression "+cExpr)
@@ -204,20 +204,20 @@ func interactionWithUser(bot *tgbotapi.BotAPI) {
 			chat(bot, "Ok, cron job "+cExpr+" is added and the reminder is:\n"+cause)
 		case "stop":
 			args := update.Message.CommandArguments()
-			if args == "reminder" {
+			if args != "reminder" {
 				c.Stop()
-				chat(bot, "Stop all available reminder cron jobs.")
+				chat(bot, "This command needs an argument, please try again.")
 				continue
 			}
-			chat(bot, "This command needs an argument, please try again.")
+			chat(bot, "Stop all available reminder cron jobs.")
 		case "restart":
 			args := update.Message.CommandArguments()
-			if args == "reminder" {
+			if args != "reminder" {
 				c.Start()
-				chat(bot, "Restart all available reminder cron jobs.")
+				chat(bot, "This command needs an argument, please try again.")
 				continue
 			}
-			chat(bot, "This command needs an argument, please try again.")
+			chat(bot, "Restart all available reminder cron jobs.")
 		case "delete":
 			args := update.Message.CommandArguments()
 			if args == "reminder" && update.Message.From.UserName == "MLEdith" {
