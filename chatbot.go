@@ -15,6 +15,8 @@ import (
 const (
 	fileName  = "bot-config.txt"
 	denialTxt = "Sorry, we should get to know each other better before I can do this with you."
+
+	botAPIToken = "490569313:AAEp10AaG9omULlCLEmA_Lp8QYhVchGvtgQ"
 )
 
 var chatID int64

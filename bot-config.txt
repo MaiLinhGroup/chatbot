@@ -3,8 +3,3 @@ LastName Riester
 UserName RWalterBot
 ID 490569313
 Token 490569313:AAEp10AaG9omULlCLEmA_Lp8QYhVchGvtgQ
-FirstName Nora
-LastName NFP
-UserName mainfpbot
-ID 396814645
-Token 396814645:AAFRbxWDvahxyxXpNFpn9RtM0gWew7uyg7s
