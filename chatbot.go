@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	tgBotAPI "github.com/go-telegram-bot-api/telegram-bot-api"
+	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 const (
@@ -13,26 +13,29 @@ const (
 )
 
 type ChatBot struct {
-	bot      *tgBotAPI.BotAPI
+	bot      *telegrambotapi
 	password string
 }
 
-func (me *ChatBot) NewChatBot() error {
-	bot, err := tgBotAPI.NewBotAPI(botAPIToken)
-	me.bot = bot
-	me.password = botPassword
-	return err
+func (me *ChatBot) NewChatBot() {
+	err := me.bot.newBotAPI(botAPIToken)
+	if err != nil {
+		tgbotAPIErrorHandler(err)
+	}
 }
 
-func (me *ChatBot) Start() error {
-	me.bot.Debug = true
+func (me *ChatBot) Start() {
+	me.bot.bot.Debug = true
 
-	log.Printf("Authorized on account %s", me.bot.Self.UserName)
+	log.Printf("Authorized on account %s", me.bot.bot.Self.UserName)
 
-	u := tgBotAPI.NewUpdate(0)
+	u := tg.NewUpdate(0)
 	u.Timeout = 60
 
-	updates, err := me.bot.GetUpdatesChan(u)
+	updates, err := me.bot.bot.GetUpdatesChan(u)
+	if err != nil {
+		tgbotAPIErrorHandler(err)
+	}
 
 	for update := range updates {
 		if update.Message == nil {
@@ -41,11 +44,13 @@ func (me *ChatBot) Start() error {
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-		msg := tgBotAPI.NewMessage(update.Message.Chat.ID, update.Message.Text)
+		msg := tg.NewMessage(update.Message.Chat.ID, update.Message.Text)
 		msg.ReplyToMessageID = update.Message.MessageID
 
-		me.bot.Send(msg)
+		me.bot.bot.Send(msg)
 	}
+}
 
-	return err
+func tgbotAPIErrorHandler(e error) {
+	log.Fatalf("Something went wrong while calling the telegram bot API:\n%v", e)
 }
