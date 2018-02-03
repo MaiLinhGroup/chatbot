@@ -1,8 +1,5 @@
 package main
 
-// TODO : move all the direct interaction with api to the tgbotapi.go
-// and create wrapper methods
-
 // The chatbot handles the communication of the program with the
 // underlying bot API. Therefore it should offer abstraction to
 // be decoupled from the bot API. The public methods shouldn't be
@@ -10,8 +7,6 @@ package main
 
 import (
 	"log"
-
-	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 const (
@@ -37,30 +32,7 @@ func (me *ChatBot) NewChatBot() {
 
 // Start : method to start a conversation with the bot
 func (me *ChatBot) Start() {
-	me.bot.bot.Debug = true
-
-	log.Printf("Authorized on account %s", me.bot.bot.Self.UserName)
-
-	u := tg.NewUpdate(0)
-	u.Timeout = 60
-
-	updates, err := me.bot.bot.GetUpdatesChan(u)
-	if err != nil {
-		tgbotAPIErrorHandler(err)
-	}
-
-	for update := range updates {
-		if update.Message == nil {
-			continue
-		}
-
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
-		msg := tg.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
-
-		me.bot.bot.Send(msg)
-	}
+	me.bot.getUpdates()
 }
 
 func tgbotAPIErrorHandler(e error) {
