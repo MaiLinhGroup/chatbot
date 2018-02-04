@@ -26,15 +26,11 @@ type ChatBot struct {
 func (me *ChatBot) NewChatBot() {
 	err := me.bot.newBotAPI(botAPIToken)
 	if err != nil {
-		tgbotAPIErrorHandler(err)
+		log.Fatalf("Error from telegram bot api: %v\n", err)
 	}
 }
 
 // Start : method to start a conversation with the bot
 func (me *ChatBot) Start() {
 	me.bot.getUpdates()
-}
-
-func tgbotAPIErrorHandler(e error) {
-	log.Fatalf("Something went wrong while calling the telegram bot API:\n%v", e)
 }
