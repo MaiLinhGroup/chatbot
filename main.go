@@ -19,5 +19,5 @@ func main() {
 		bot: &telegrambotapi{},
 	}
 	cb.NewChatBot()
-	cb.Start()
+	cb.GetBotUpdates()
 }

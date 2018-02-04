@@ -22,15 +22,19 @@ type ChatBot struct {
 	password string          // TODO: password service to generate a strong password
 }
 
-// NewChatBot : method for creating a new chatbot instance
+// NewChatBot : creating a new chatbot instance
 func (me *ChatBot) NewChatBot() {
 	err := me.bot.newBotAPI(botAPIToken)
+	handleBotApiError(err)
+}
+
+// GetBotUpdates : fetch update responses from bot
+func (me *ChatBot) GetBotUpdates() {
+	me.bot.getUpdates()
+}
+
+func handleBotApiError(err error) {
 	if err != nil {
 		log.Fatalf("Error from telegram bot api: %v\n", err)
 	}
-}
-
-// Start : method to start a conversation with the bot
-func (me *ChatBot) Start() {
-	me.bot.getUpdates()
 }
