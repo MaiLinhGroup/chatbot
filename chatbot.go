@@ -15,6 +15,9 @@ const (
 	botPassword = "test" // TODO: to be removed in production
 )
 
+type Update struct {
+}
+
 // ChatBot is used by the program to interact
 // with users through a bot
 type ChatBot struct {
@@ -30,7 +33,6 @@ func (me *ChatBot) NewChatBot() {
 
 // GetBotUpdates : fetch update responses from bot
 func (me *ChatBot) GetBotUpdates() {
-	me.bot.getUpdates()
 }
 
 func handleBotApiError(err error) {
