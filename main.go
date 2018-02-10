@@ -7,17 +7,8 @@ import (
 	"fmt"
 )
 
-// pointer to the chatbot
-var cb *ChatBot
-
 func main() {
 	// TODO: debug, remove chatter
 	fmt.Println("main of chatbot")
-
-	// initialising the chatbot
-	cb = &ChatBot{
-		bot: &telegrambotapi{},
-	}
-	cb.NewChatBot()
-	cb.GetBotUpdates()
+	StartChat()
 }
