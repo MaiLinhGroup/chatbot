@@ -1,13 +1,27 @@
 package main
 
-import "testing"
+import (
+	"testing"
 
-func TestNewChatBot(t *testing.T) {
-	cb := &ChatBot{
-		bot: &telegrambotapi{},
+	"github.com/stretchr/testify/assert"
+)
+
+func TestHandleUserRequest(t *testing.T) {
+	//given
+	updateRetriever = func() Update { return Update{from: "MLEdith", text: "test 1", chatID: 480821480} }
+
+	exp := UserRequest{
+		chatID: 480821480,
+		msg:    "test 1",
+		cmds:   make(map[string]string),
 	}
-	cb.NewChatBot()
-	if cb.bot == nil {
-		t.Error("Expected *telegrambotapi, but got nil")
-	}
+
+	exp.cmds["help"] = ""
+
+	//when
+	subj := HandleUserRequest()
+
+	//then
+	assert.Equal(t, exp.chatID, subj.chatID)
+	assert.Equal(t, exp.msg, subj.msg)
 }

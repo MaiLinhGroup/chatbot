@@ -10,5 +10,6 @@ import (
 func main() {
 	// TODO: debug, remove chatter
 	fmt.Println("main of chatbot")
-	StartChat()
+	StartChatBot()
+	HandleUserRequest()
 }
