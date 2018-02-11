@@ -38,3 +38,7 @@ func HandleUserRequest() UserRequest {
 		msg:    udp.text,
 	}
 }
+
+func Reply(r string) {
+	send(r)
+}

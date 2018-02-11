@@ -58,9 +58,11 @@ func (me *Update) updWrapper(u tgbotapi.Update) {
 	me.chatID = u.Message.Chat.ID
 }
 
+func send(m string) {
+	msg := tgbotapi.NewMessage(480821480, m)
+	bot.Send(msg)
+}
+
 //
 
-// msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 // msg.ReplyToMessageID = update.Message.MessageID
-
-// bot.Send(msg)

@@ -12,4 +12,5 @@ func main() {
 	fmt.Println("main of chatbot")
 	StartChatBot()
 	HandleUserRequest()
+	Reply("Reply")
 }
