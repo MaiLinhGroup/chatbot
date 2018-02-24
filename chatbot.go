@@ -32,7 +32,7 @@ func StartChatBot() {
 }
 
 func HandleUserRequest() UserRequest {
-	ur := UserRequest{}
+	var ur UserRequest
 	// for upd := range updateRetriever() {
 	// 	log.Printf("Receiver [%s] %s", upd.from, upd.text)
 	// 	ur.chatID = upd.chatID
