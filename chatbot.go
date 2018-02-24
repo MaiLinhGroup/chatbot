@@ -10,7 +10,8 @@ import (
 // be decoupled from the bot API. The public methods shouldn't be
 // bot API specific.
 
-var updateRetriever func() Update
+// monkey patching
+var updateRetriever func() UpdatesChannel
 
 func init() {
 	updateRetriever = getUpdates
@@ -31,12 +32,22 @@ func StartChatBot() {
 }
 
 func HandleUserRequest() UserRequest {
-	udp := updateRetriever()
-	log.Printf("[%s] %s", udp.from, udp.text)
-	return UserRequest{
-		chatID: udp.chatID,
-		msg:    udp.text,
+	ur := UserRequest{}
+	// for upd := range updateRetriever() {
+	// 	log.Printf("Receiver [%s] %s", upd.from, upd.text)
+	// 	ur.chatID = upd.chatID
+	// 	ur.msg = upd.text
+	// }
+	updates := updateRetriever()
+	log.Println("before select")
+	select {
+	case upd := <-updates:
+		log.Printf("Receiver [%s] %s", upd.from, upd.text)
+	default:
+		log.Printf("No message received")
 	}
+
+	return ur
 }
 
 func Reply(r string) {

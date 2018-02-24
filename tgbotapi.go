@@ -18,6 +18,7 @@ type Update struct {
 	messageID int
 	chatID    int64
 }
+type UpdatesChannel <-chan Update
 
 var bot *tgbotapi.BotAPI
 
@@ -29,8 +30,9 @@ func startBot(token string) {
 	bot = b
 }
 
-func getUpdates() Update {
-	udp := Update{}
+func getUpdates() UpdatesChannel {
+	upd := Update{}
+	ch := make(chan Update, 100)
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
@@ -45,10 +47,12 @@ func getUpdates() Update {
 		if update.Message == nil {
 			continue
 		}
-		udp.updWrapper(update)
-		return udp
+		upd.updWrapper(update)
+		ch <- upd
+		log.Printf("Sender [%s] %s", upd.from, upd.text)
 	}
-	return udp
+
+	return ch
 }
 
 func (me *Update) updWrapper(u tgbotapi.Update) {
@@ -63,6 +67,6 @@ func send(m string) {
 	bot.Send(msg)
 }
 
-//
+//https://play.golang.org/p/xrQEnuqlPXt
 
 // msg.ReplyToMessageID = update.Message.MessageID
