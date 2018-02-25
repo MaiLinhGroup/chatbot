@@ -12,16 +12,21 @@ import (
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+// 9 of 10 pointer semantics
 type Update struct {
 	from      string
 	text      string
 	messageID int
 	chatID    int64
 }
+
+// built-in and reference types should be used with value semantics
 type UpdatesChannel <-chan Update
 
 var bot *tgbotapi.BotAPI
 
+// don't mixing semantics, if something is using pointer semantics, stick to it!
+// don't switch between value and pointer semantics!
 func startBot(token string) {
 	b, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
