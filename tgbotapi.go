@@ -30,8 +30,9 @@ func startBot(token string) {
 	bot = b
 }
 
+//here i need to fetch updates from chat and share them with the rest of the program
 func getUpdates() UpdatesChannel {
-	upd := Update{}
+	var upd Update
 	ch := make(chan Update, 100)
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
@@ -63,7 +64,7 @@ func (me *Update) updWrapper(u tgbotapi.Update) {
 }
 
 func send(m string) {
-	msg := tgbotapi.NewMessage(480821480, m)
+	msg := tgbotapi.NewMessage(480821480, m) //chatid where i want to send my msg to
 	bot.Send(msg)
 }
 
