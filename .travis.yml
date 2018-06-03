@@ -1,0 +1,17 @@
+language: go
+
+go:
+  - "1.10"
+
+# build runs in fast boot time container-based virtual environment
+sudo: false
+
+notifications:
+  email: false
+
+before_script:
+  # Vet examines Go source code and reports suspicious constructs
+  - go tool vet ./...
+
+script:
+- go test -v ./...
