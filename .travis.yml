@@ -11,7 +11,7 @@ notifications:
 
 before_script:
   # Vet examines Go source code and reports suspicious constructs
-  - go tool vet ./...
+  - go tool vet .
 
 script:
-- go test -v ./...
+  - go test -v -race ./...
