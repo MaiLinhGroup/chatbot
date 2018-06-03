@@ -1,4 +1,4 @@
-Project 'Chat Bot'
+Project 'Chat Bot' [![Build Status](https://travis-ci.org/MaiLinhGroup/chatbot.svg?branch=master)](https://travis-ci.org/MaiLinhGroup/chatbot)
 ==================
 ## Libraries:
 This application is using
