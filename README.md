@@ -1,10 +1,13 @@
 Project 'Chat Bot' [![Build Status](https://travis-ci.org/MaiLinhGroup/chatbot.svg?branch=master)](https://travis-ci.org/MaiLinhGroup/chatbot)
 ==================
-## Libraries:
-This application is using
+## Libraries
+This application is using following 3rd parties
 
-+ https://godoc.org/github.com/go-telegram-bot-api/telegram-bot-api for interacting with the Telegram Bot API
++ [tgbotapi](https://godoc.org/github.com/go-telegram-bot-api/telegram-bot-api) for interacting with the Telegram Bot API
 
+-------------
+## Dependency Management Tool
++ [dep](https://golang.github.io/dep/) : Dependency management for Go
 -------------
 ## Prerequisites
 ### Telegram Bot
