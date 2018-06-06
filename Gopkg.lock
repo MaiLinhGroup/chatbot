@@ -8,6 +8,12 @@
   version = "v4.6.2"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/goinggo/tracelog"
+  packages = ["."]
+  revision = "5a27b49b2201ce974306101fce4d271b1e840e02"
+
+[[projects]]
   name = "github.com/technoweenie/multipartstreamer"
   packages = ["."]
   revision = "a90a01d73ae432e2611d178c18367fbaa13e0154"
@@ -16,6 +22,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bad7967c6acaf77c51865092cdfa44e3cb1c5c6049fca5d568bc8b308fe087a7"
+  inputs-digest = "af31c65d0327029c113abe35bd5a1fabc2b53504e7fb3f36649c05133491caff"
   solver-name = "gps-cdcl"
   solver-version = 1
