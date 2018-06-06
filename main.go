@@ -44,6 +44,7 @@ func main() {
 	time.Sleep(time.Millisecond * 500)
 	udp.Clear()
 
+	// TODO now echoing the sent text is working, start to do the same but with channels and go routines
 	// ch := make(chan string)
 
 	// go func() {
