@@ -2,7 +2,7 @@ language: go
 
 go:
   - "1.10"
-  - tip
+  - master
 
 # build runs in fast boot time container-based virtual environment
 sudo: false
