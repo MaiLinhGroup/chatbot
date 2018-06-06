@@ -5,27 +5,30 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
+
+	log "github.com/goinggo/tracelog"
 
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func main() {
-	// TODO: debug, remove chatter
-	fmt.Println("main of chatbot")
+	log.Start(log.LevelInfo)
+	defer log.Stop()
 
-	// retrieve the token pass by env var to pass it to chatbot
+	// retrieve the token pass by environment variable
 	tkn := os.Getenv("TOKEN")
 	if tkn == "" {
-		log.Println("Please passing a valid token.We want something like 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11.")
+		log.Info("main", "os.Getenv", "TOKEN not found")
+		return
 	}
 
-	// now we can call the chatbot with the token
+	// call the chatbot with the provided token
 	bot, err := tgbot.NewBotAPI(tkn)
 	if err != nil {
-		log.Panic("in tgbot NewBotAPI:", err)
+		log.Error(err, "main", "tgbot.NewBotAPI")
+		return
 	}
 
 	bot.Debug = true
@@ -35,7 +38,8 @@ func main() {
 
 	udp, err := bot.GetUpdatesChan(ucfg)
 	if err != nil {
-		log.Panic("in tgbot GetUpdatesChan:", err)
+		log.Error(err, "main", "bot.GetUpdatesChan")
+		return
 	}
 	time.Sleep(time.Millisecond * 500)
 	udp.Clear()
@@ -50,16 +54,16 @@ func main() {
 			continue
 		}
 
-		log.Printf("From [%s] : %s\n", u.Message.From.UserName, u.Message.Text)
+		fmt.Printf("From [%s] : %s\n", u.Message.From.UserName, u.Message.Text)
 		msg := tgbot.NewMessage(u.Message.Chat.ID, u.Message.Text)
 		msg.ReplyToMessageID = u.Message.MessageID
 
 		reply, err := bot.Send(msg)
 		if err != nil {
-			log.Panic("in tgbot Send", err)
+			log.Error(err, "main", "bot.Send")
 		}
 
-		log.Printf("Reply with ID %v and %s.\n", msg.ReplyToMessageID, reply.Text)
+		fmt.Printf("Reply with ID %v and Message %s.\n", msg.ReplyToMessageID, reply.Text)
 
 		// ch <- u.Message.Text
 	}
