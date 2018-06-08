@@ -44,33 +44,30 @@ func main() {
 	time.Sleep(time.Millisecond * 500)
 	udp.Clear()
 
-	// TODO now echoing the sent text is working, start to do the same but with channels and go routines
-	// ch := make(chan string)
+	// TODO now having a go routine and channels working, try next to move some code into a function
+	ch := make(chan *tgbot.Message)
 
-	// go func() {
-	// defer close(ch)
+	go func() {
+		defer close(ch)
 
-	for u := range udp {
-		if u.Message == nil {
-			continue
+		for u := range udp {
+			if u.Message == nil {
+				continue
+			}
+
+			fmt.Printf("From [%s] : %s\n", u.Message.From.UserName, u.Message.Text)
+
+			ch <- u.Message
 		}
+	}()
 
-		fmt.Printf("From [%s] : %s\n", u.Message.From.UserName, u.Message.Text)
-		msg := tgbot.NewMessage(u.Message.Chat.ID, u.Message.Text)
-		msg.ReplyToMessageID = u.Message.MessageID
+	for msg := range ch {
+		// use your string :)
+		reply := tgbot.NewMessage(msg.Chat.ID, msg.Text)
+		reply.ReplyToMessageID = msg.MessageID
 
-		reply, err := bot.Send(msg)
-		if err != nil {
-			log.Error(err, "main", "bot.Send")
-		}
+		bot.Send(reply)
 
-		fmt.Printf("Reply with ID %v and Message %s.\n", msg.ReplyToMessageID, reply.Text)
-
-		// ch <- u.Message.Text
+		fmt.Printf("Reply with ID %v and Message '%s'.\n", reply.ReplyToMessageID, reply.Text)
 	}
-	// }()
-
-	// for msg := range ch {
-	// 	// use your string :)
-	// }
 }
