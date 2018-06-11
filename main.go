@@ -64,8 +64,8 @@ func main() {
 
 	for msg := range ch {
 		// use your string :)
-		msg.Text = ReversedMessage(msg.Text)
-		reply := tgbot.NewMessage(msg.Chat.ID, msg.Text)
+		reversed := ReversedMessage(msg.Text)
+		reply := tgbot.NewMessage(msg.Chat.ID, reversed)
 		reply.ReplyToMessageID = msg.MessageID
 
 		bot.Send(reply)
