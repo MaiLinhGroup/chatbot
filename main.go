@@ -6,6 +6,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	log "github.com/goinggo/tracelog"
@@ -63,6 +64,7 @@ func main() {
 
 	for msg := range ch {
 		// use your string :)
+		msg.Text = ReversedMessage(msg.Text)
 		reply := tgbot.NewMessage(msg.Chat.ID, msg.Text)
 		reply.ReplyToMessageID = msg.MessageID
 
@@ -70,4 +72,17 @@ func main() {
 
 		fmt.Printf("Reply with ID %v and Message '%s'.\n", reply.ReplyToMessageID, reply.Text)
 	}
+}
+
+// ReversedMessage takes a message and returns it in reversed order.
+// One or more leading and trailing whitespaces got to be removed,
+// but no further modification will be performed on the original message.
+func ReversedMessage(msg string) (reversedMsg string) {
+	msg = strings.TrimSpace(msg)
+
+	for i := len(msg) - 1; i >= 0; i-- {
+		reversedMsg += string(msg[i])
+	}
+
+	return
 }
