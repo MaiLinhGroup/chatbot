@@ -4,14 +4,15 @@ package main
 // packages are called to interact with each other.
 
 import (
+	// standard libs
 	"fmt"
 	"os"
 	"strings"
 	"time"
 
-	log "github.com/goinggo/tracelog"
-
+	// 3rd party libs
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api"
+	log "github.com/goinggo/tracelog"
 )
 
 func main() {
@@ -43,9 +44,9 @@ func main() {
 		return
 	}
 	time.Sleep(time.Millisecond * 500)
+	// clear all unprocessed updates after 500ms
 	udp.Clear()
 
-	// TODO now having a go routine and channels working, try next to move some code into a function
 	ch := make(chan *tgbot.Message)
 
 	go func() {
