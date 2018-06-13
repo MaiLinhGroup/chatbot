@@ -1,4 +1,4 @@
-Project 'Chat Bot' [![Build Status](https://travis-ci.org/MaiLinhGroup/chatbot.svg?branch=master)](https://travis-ci.org/MaiLinhGroup/chatbot)
+Project 'Chet Bot' :gun::sunglasses: [![Build Status](https://travis-ci.org/MaiLinhGroup/chatbot.svg?branch=master)](https://travis-ci.org/MaiLinhGroup/chatbot)
 ==================
 ## Libraries
 This application is using following 3rd parties
