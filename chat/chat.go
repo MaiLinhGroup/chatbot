@@ -9,7 +9,6 @@ import (
 )
 
 // monkey patching :monkey_face:
-var tgbotNewBotAPI = tgbot.NewBotAPI
 var osGetEnv = os.Getenv
 
 // Bot ...
@@ -27,7 +26,7 @@ func New() (*Bot, error) {
 	}
 
 	// call the chatbot with the provided token
-	botAPI, err := tgbotNewBotAPI(token)
+	botAPI, err := tgbot.NewBotAPI(token)
 	if err != nil {
 		return nil, err
 	}
