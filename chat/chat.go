@@ -2,7 +2,6 @@ package chat
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -60,6 +59,10 @@ func (bot *Bot) Chat(msgCh chan Message) error {
 	time.Sleep(time.Millisecond * 500)
 	updCh.Clear()
 
+	// Waiting for messages from user via update channel,
+	// send user messages via message channel to message handler
+	// and waiting for its reply on the message channel to send it
+	// back to user
 	for {
 		select {
 		case upd := <-updCh:
@@ -67,27 +70,20 @@ func (bot *Bot) Chat(msgCh chan Message) error {
 				ID:   upd.Message.Chat.ID,
 				Text: upd.Message.Text,
 			}
-			fmt.Println("Trying to send msg to handler...")
 			msgCh <- msgFromUser
-			fmt.Println("Message sent to handler.")
 		case msgToUser := <-msgCh:
 			reply := tgbot.NewMessage(msgToUser.ID, msgToUser.Text)
 			bot.API.Send(reply)
-			fmt.Printf("Reply with ChatID %v and Text '%s'.\n", reply.ChatID, reply.Text)
 		}
 	}
 }
 
 // HandleMessage ...
 func HandleMessage(msgCh chan Message) {
-	fmt.Println("Waiting for messages to process...")
 	for msg := range msgCh {
-		fmt.Println("Message from user received.")
 		reversed := ReversedMessage(msg.Text)
 		msg.Text = reversed
-		fmt.Println("Trying to send processed msg back...")
 		msgCh <- msg
-		fmt.Println("Message sent back.")
 	}
 
 }
