@@ -2,8 +2,10 @@ package chat
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -13,8 +15,14 @@ var osGetEnv = os.Getenv
 
 // Bot ...
 type Bot struct {
-	botAPI       *tgbot.BotAPI      // interaction with Telegram Bot API
-	updateConfig tgbot.UpdateConfig // contains information about update request
+	API          *tgbot.BotAPI      // interaction with Telegram Bot API
+	UpdateConfig tgbot.UpdateConfig // contains information about update request
+}
+
+// Message ...
+type Message struct {
+	ID   int64
+	Text string
 }
 
 // New ...
@@ -32,12 +40,56 @@ func New() (*Bot, error) {
 	}
 
 	// uncomment this for tgbot debug
-	botAPI.Debug = true
+	// botAPI.Debug = true
 
 	updateCfg := tgbot.NewUpdate(0)
 	updateCfg.Timeout = 60
 
-	return &Bot{botAPI: botAPI, updateConfig: updateCfg}, nil
+	return &Bot{API: botAPI, UpdateConfig: updateCfg}, nil
+}
+
+// Chat ...
+func (bot *Bot) Chat(msgCh chan Message) error {
+	// Get update channel to receive messages from user
+	updCh, err := bot.API.GetUpdatesChan(bot.UpdateConfig)
+	if err != nil {
+		return err
+	}
+
+	// Clear all unprocessed updates after certain period of time
+	time.Sleep(time.Millisecond * 500)
+	updCh.Clear()
+
+	for {
+		select {
+		case upd := <-updCh:
+			msgFromUser := Message{
+				ID:   upd.Message.Chat.ID,
+				Text: upd.Message.Text,
+			}
+			fmt.Println("Trying to send msg to handler...")
+			msgCh <- msgFromUser
+			fmt.Println("Message sent to handler.")
+		case msgToUser := <-msgCh:
+			reply := tgbot.NewMessage(msgToUser.ID, msgToUser.Text)
+			bot.API.Send(reply)
+			fmt.Printf("Reply with ChatID %v and Text '%s'.\n", reply.ChatID, reply.Text)
+		}
+	}
+}
+
+// HandleMessage ...
+func HandleMessage(msgCh chan Message) {
+	fmt.Println("Waiting for messages to process...")
+	for msg := range msgCh {
+		fmt.Println("Message from user received.")
+		reversed := ReversedMessage(msg.Text)
+		msg.Text = reversed
+		fmt.Println("Trying to send processed msg back...")
+		msgCh <- msg
+		fmt.Println("Message sent back.")
+	}
+
 }
 
 // ReversedMessage takes a message and returns it in reversed order.
