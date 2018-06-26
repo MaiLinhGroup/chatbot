@@ -57,42 +57,42 @@ func New() (*Bot, error) {
 // Chat either receiving user requests via the update channel or
 // sending results back to user using the send functionality of
 // the Telegram Bot API
-func (bot *Bot) Chat(msgCh chan Message) error {
+func (bot *Bot) Chat(userRequest, userFeedback chan Message) error {
 	// Get update channel to receive messages from user
-	updCh, err := bot.API.GetUpdatesChan(bot.UpdateConfig)
+	updates, err := bot.API.GetUpdatesChan(bot.UpdateConfig)
 	if err != nil {
 		return err
 	}
 
 	// Clear all unprocessed updates after certain period of time
 	time.Sleep(time.Millisecond * 500)
-	updCh.Clear()
+	updates.Clear()
 
 	// Waiting for messages from user via update channel,
-	// send user messages via message channel to message handler
-	// and waiting for its reply on the message channel to send it
+	// send user request via channel to handler
+	// and waiting for its reply on the feedback channel to send it
 	// back to user
 	for {
 		select {
-		case upd := <-updCh:
-			msgFromUser := Message{
+		case upd := <-updates:
+			urq := Message{
 				ID:   upd.Message.Chat.ID,
 				Text: upd.Message.Text,
 			}
-			msgCh <- msgFromUser
-		case msgToUser := <-msgCh:
-			reply := tgbot.NewMessage(msgToUser.ID, msgToUser.Text)
+			userRequest <- urq
+		case ufb := <-userFeedback:
+			reply := tgbot.NewMessage(ufb.ID, ufb.Text)
 			bot.API.Send(reply)
 		}
 	}
 }
 
 // HandleMessage ...
-func HandleMessage(msgCh chan Message) {
-	for msg := range msgCh {
+func HandleMessage(userRequest, userFeedback chan Message) {
+	for msg := range userRequest {
 		reversed := ReversedMessage(msg.Text)
 		msg.Text = reversed
-		msgCh <- msg
+		userFeedback <- msg
 	}
 
 }

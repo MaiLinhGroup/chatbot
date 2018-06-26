@@ -21,9 +21,10 @@ func main() {
 		return
 	}
 
-	msgCh := make(chan chat.Message)
+	userRq := make(chan chat.Message)
+	userFb := make(chan chat.Message)
 
-	go chat.HandleMessage(msgCh)
+	go chat.HandleMessage(userRq, userFb)
 
-	chatbot.Chat(msgCh)
+	chatbot.Chat(userRq, userFb)
 }
