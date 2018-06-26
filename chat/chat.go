@@ -7,7 +7,6 @@ package chat
 import (
 	"errors"
 	"os"
-	"strings"
 	"time"
 
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -85,27 +84,4 @@ func (bot *Bot) Chat(userRequest, userFeedback chan Message) error {
 			bot.API.Send(reply)
 		}
 	}
-}
-
-// HandleMessage ...
-func HandleMessage(userRequest, userFeedback chan Message) {
-	for msg := range userRequest {
-		reversed := ReversedMessage(msg.Text)
-		msg.Text = reversed
-		userFeedback <- msg
-	}
-
-}
-
-// ReversedMessage takes a message and returns it in reversed order.
-// One or more leading and trailing whitespaces got to be removed,
-// but no further modification will be performed on the original message.
-func ReversedMessage(msg string) (reversedMsg string) {
-	msg = strings.TrimSpace(msg)
-
-	for i := len(msg) - 1; i >= 0; i-- {
-		reversedMsg += string(msg[i])
-	}
-
-	return
 }

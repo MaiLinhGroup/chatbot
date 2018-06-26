@@ -4,6 +4,8 @@ package main
 // packages are called to interact with each other.
 
 import (
+	"strings"
+
 	"github.com/MaiLinhGroup/chatbot/chat"
 	// standard libs
 
@@ -24,7 +26,30 @@ func main() {
 	userRq := make(chan chat.Message)
 	userFb := make(chan chat.Message)
 
-	go chat.HandleMessage(userRq, userFb)
+	go ChatHandler(userRq, userFb)
 
 	chatbot.Chat(userRq, userFb)
+}
+
+// ChatHandler ...
+func ChatHandler(userRequest, userFeedback chan chat.Message) {
+	for msg := range userRequest {
+		reversed := ReversedMessage(msg.Text)
+		msg.Text = reversed
+		userFeedback <- msg
+	}
+
+}
+
+// ReversedMessage takes a message and returns it in reversed order.
+// One or more leading and trailing whitespaces got to be removed,
+// but no further modification will be performed on the original message.
+func ReversedMessage(msg string) (reversedMsg string) {
+	msg = strings.TrimSpace(msg)
+
+	for i := len(msg) - 1; i >= 0; i-- {
+		reversedMsg += string(msg[i])
+	}
+
+	return
 }
