@@ -53,7 +53,7 @@ func New() (*Bot, error) {
 	}
 
 	// uncomment this for tgbot debug
-	botAPI.Debug = true
+	// botAPI.Debug = true
 
 	// contains config information about updating user requests
 	updateCfg := tgbot.NewUpdate(0)
@@ -96,7 +96,6 @@ func (bot *Bot) Chat(userRequest, userFeedback chan Message) error {
 				ID:      upd.Message.Chat.ID,
 				From:    u,
 				Request: rq,
-				Reply:   "No Reply yet.",
 			}
 			userRequest <- urq
 		case ufb := <-userFeedback:

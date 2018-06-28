@@ -55,5 +55,23 @@ func ReversedMessage(msg string) (reversedMsg string) {
 
 // ProcessingUserRequest ...
 func ProcessingUserRequest(request map[string]string) string {
-	return ReversedMessage(request[""])
+	var reply string
+	for cmd, arg := range request {
+		if arg == "" {
+			reply = "Hello World!"
+			break
+		}
+		switch cmd {
+		case "rev":
+			reply = ReversedMessage(arg)
+		case "":
+			// plain message no command, just echoing message
+			reply = arg
+		default:
+			// unknown command, ignoring argument
+			reply = "Sorry, unknown command: /" + cmd
+		}
+
+	}
+	return reply
 }
