@@ -34,8 +34,7 @@ func main() {
 // ChatHandler ...
 func ChatHandler(userRequest, userFeedback chan chat.Message) {
 	for msg := range userRequest {
-		reversed := ReversedMessage(msg.Request[""])
-		msg.Request[""] = reversed
+		msg.Reply = ProcessingUserRequest(msg.Request)
 		userFeedback <- msg
 	}
 
@@ -52,4 +51,9 @@ func ReversedMessage(msg string) (reversedMsg string) {
 	}
 
 	return
+}
+
+// ProcessingUserRequest ...
+func ProcessingUserRequest(request map[string]string) string {
+	return ReversedMessage(request[""])
 }

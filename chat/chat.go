@@ -23,11 +23,12 @@ type Bot struct {
 
 // Message is constructed of a unique ID which is used to identify the chat/source
 // where the user request has come from, information about the user who has sent the
-// request and the request itself
+// request, the request itself and the reply to the user
 type Message struct {
 	ID      int64
 	From    User
 	Request map[string]string
+	Reply   string
 }
 
 // User ...
@@ -95,10 +96,11 @@ func (bot *Bot) Chat(userRequest, userFeedback chan Message) error {
 				ID:      upd.Message.Chat.ID,
 				From:    u,
 				Request: rq,
+				Reply:   "No Reply yet.",
 			}
 			userRequest <- urq
 		case ufb := <-userFeedback:
-			reply := tgbot.NewMessage(ufb.ID, ufb.Request[""])
+			reply := tgbot.NewMessage(ufb.ID, ufb.Reply)
 			bot.API.Send(reply)
 		}
 	}
