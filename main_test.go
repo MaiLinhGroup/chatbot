@@ -5,8 +5,8 @@ import "testing"
 func TestReverseMessage(t *testing.T) {
 	// given
 	var cases = []struct {
-		msg         string // input
-		reversedMsg string // expected result
+		msg        string // input
+		reverseMsg string // expected result
 	}{
 		{"Hallo", "ollaH"},
 		{"Hello World!", "!dlroW olleH"},
@@ -18,10 +18,10 @@ func TestReverseMessage(t *testing.T) {
 
 	for i, c := range cases {
 		// when
-		got := ReversedMessage(c.msg)
+		got := ReverseMessage(c.msg)
 		// then
-		if got != c.reversedMsg {
-			t.Errorf("Case %v : got %s but want %s", i, got, c.reversedMsg)
+		if got != c.reverseMsg {
+			t.Errorf("Case %v : got %s but want %s", i, got, c.reverseMsg)
 		}
 	}
 }

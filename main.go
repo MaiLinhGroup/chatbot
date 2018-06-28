@@ -40,14 +40,14 @@ func ChatHandler(userRequest, userFeedback chan chat.Message) {
 
 }
 
-// ReversedMessage takes a message and returns it in reversed order.
+// ReverseMessage takes a message and returns it in reverse order.
 // One or more leading and trailing whitespaces got to be removed,
 // but no further modification will be performed on the original message.
-func ReversedMessage(msg string) (reversedMsg string) {
+func ReverseMessage(msg string) (reverseMsg string) {
 	msg = strings.TrimSpace(msg)
 
 	for i := len(msg) - 1; i >= 0; i-- {
-		reversedMsg += string(msg[i])
+		reverseMsg += string(msg[i])
 	}
 
 	return
@@ -63,7 +63,7 @@ func ProcessingUserRequest(request map[string]string) string {
 		}
 		switch cmd {
 		case "rev":
-			reply = ReversedMessage(arg)
+			reply = ReverseMessage(arg)
 		case "":
 			// plain message no command, just echoing message
 			reply = arg
