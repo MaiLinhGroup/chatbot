@@ -21,11 +21,19 @@ type Bot struct {
 	UpdateConfig tgbot.UpdateConfig // contains information about update request
 }
 
-// Message is constructed of a unique ID which is used to identify the user
-// who has sent the request and the request itself
+// Message is constructed of a unique ID which is used to identify the chat/source
+// where the user request has come from, information about the user who has sent the
+// request and the request itself
 type Message struct {
-	ID   int64
-	Text string
+	ID      int64
+	From    User
+	Request map[string]string
+}
+
+// User ...
+type User struct {
+	ID       int
+	UserName string
 }
 
 // New authentificates a new Bot struct with the provided token at
@@ -74,13 +82,23 @@ func (bot *Bot) Chat(userRequest, userFeedback chan Message) error {
 	for {
 		select {
 		case upd := <-updates:
+			u := User{upd.Message.From.ID, upd.Message.From.UserName}
+
+			rq := make(map[string]string)
+			if upd.Message.IsCommand() {
+				rq[upd.Message.Command()] = upd.Message.CommandArguments()
+			} else {
+				rq[""] = upd.Message.Text
+			}
+
 			urq := Message{
-				ID:   upd.Message.Chat.ID,
-				Text: upd.Message.Text,
+				ID:      upd.Message.Chat.ID,
+				From:    u,
+				Request: rq,
 			}
 			userRequest <- urq
 		case ufb := <-userFeedback:
-			reply := tgbot.NewMessage(ufb.ID, ufb.Text)
+			reply := tgbot.NewMessage(ufb.ID, ufb.Request[""])
 			bot.API.Send(reply)
 		}
 	}
