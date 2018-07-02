@@ -25,16 +25,11 @@ type Bot struct {
 // where the user request has come from, information about the user who has sent the
 // request, the request itself and the reply to the user
 type Message struct {
-	ID      int64
-	From    User
-	Request map[string]string
-	Reply   string
-}
-
-// User ...
-type User struct {
-	ID       int
+	ChatID   int64
+	UserID   int
 	UserName string
+	Request  map[string]string
+	Reply    string
 }
 
 // New authentificates a new Bot struct with the provided token at
@@ -83,8 +78,6 @@ func (bot *Bot) Chat(userRequest, userFeedback chan Message) error {
 	for {
 		select {
 		case upd := <-updates:
-			u := User{upd.Message.From.ID, upd.Message.From.UserName}
-
 			rq := make(map[string]string)
 			if upd.Message.IsCommand() {
 				rq[upd.Message.Command()] = upd.Message.CommandArguments()
@@ -93,13 +86,14 @@ func (bot *Bot) Chat(userRequest, userFeedback chan Message) error {
 			}
 
 			urq := Message{
-				ID:      upd.Message.Chat.ID,
-				From:    u,
-				Request: rq,
+				ChatID:   upd.Message.Chat.ID,
+				UserID:   upd.Message.From.ID,
+				UserName: upd.Message.From.UserName,
+				Request:  rq,
 			}
 			userRequest <- urq
 		case ufb := <-userFeedback:
-			reply := tgbot.NewMessage(ufb.ID, ufb.Reply)
+			reply := tgbot.NewMessage(ufb.ChatID, ufb.Reply)
 			bot.API.Send(reply)
 		}
 	}
