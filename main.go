@@ -34,6 +34,9 @@ func main() {
 // ChatHandler ...
 func ChatHandler(userRequest, userFeedback chan chat.Message) {
 	for msg := range userRequest {
+		msg.Reply = "Hi " + msg.UserName
+		userFeedback <- msg
+
 		msg.Reply = ProcessingUserRequest(msg.Request)
 		userFeedback <- msg
 	}
