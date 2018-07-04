@@ -25,3 +25,26 @@ func TestReverseMessage(t *testing.T) {
 		}
 	}
 }
+
+func TestProcessingUserRequest(t *testing.T) {
+	// given
+	var cases = []struct {
+		request map[string]string // input
+		reply   string            // expected result
+	}{
+		{map[string]string{"rev": ""}, "Hello World!"},                        //known cmd but no arg
+		{map[string]string{"": ""}, "Hello World!"},                           //unknown cmd and no arg
+		{map[string]string{"rev": "hallo"}, "ollah"},                          //reverse arg
+		{map[string]string{"": "hallo"}, "hallo"},                             //echoing message
+		{map[string]string{"revv": "hallo"}, "Sorry, unknown command: /revv"}, //unknown cmd
+	}
+
+	for _, c := range cases {
+		// when
+		got := ProcessingUserRequest(c.request)
+		// then
+		if got != c.reply {
+			t.Errorf("Want %v but got %v", c.reply, got)
+		}
+	}
+}
