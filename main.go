@@ -6,6 +6,7 @@ package main
 import (
 	"strings"
 
+	"github.com/MaiLinhGroup/chatbot/auth"
 	"github.com/MaiLinhGroup/chatbot/chat"
 	// standard libs
 
@@ -32,15 +33,23 @@ func main() {
 }
 
 // ChatHandler ...
-func ChatHandler(userRequest, userFeedback chan chat.Message) {
-	for msg := range userRequest {
-		msg.Reply = "Hi " + msg.UserName
-		userFeedback <- msg
+func ChatHandler(userRequest, userFeedback chan chat.Message) error {
+	a, err := auth.CreateAdminUser()
+	if err != nil {
+		return err
+	}
 
-		msg.Reply = ProcessingUserRequest(msg.Request)
+	for msg := range userRequest {
+		if a.Admin(msg.UserID) {
+			msg.Reply = "Hi Admin! Here my reply:\n"
+			msg.Reply += ProcessingUserRequest(msg.Request)
+		} else {
+			msg.Reply = "Hi " + msg.UserName + "! Sorry, currently I only talk to my admin."
+		}
 		userFeedback <- msg
 	}
 
+	return nil
 }
 
 // ReverseMessage takes a message and returns it in reverse order.

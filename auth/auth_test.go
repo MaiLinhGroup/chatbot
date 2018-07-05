@@ -70,3 +70,30 @@ func TestCreateAdminUserWithKey(t *testing.T) {
 		t.Errorf("No error expected but got %v", err.Error())
 	}
 }
+
+func TestAdminValidKey(t *testing.T) {
+	// given
+	want := new(Admin)
+	want.Key = 123
+
+	// when
+	got := want.Admin(123)
+
+	// then
+	if !got {
+		t.Error("Expected true when given valid admin key.")
+	}
+}
+func TestAdminInvalidKey(t *testing.T) {
+	// given
+	want := new(Admin)
+	want.Key = 123
+
+	// when
+	got := want.Admin(23)
+
+	// then
+	if got {
+		t.Error("Expected false when given invalid admin key.")
+	}
+}

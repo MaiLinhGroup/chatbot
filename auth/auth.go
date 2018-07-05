@@ -38,3 +38,11 @@ func CreateAdminUser() (*Admin, error) {
 
 	return a, nil
 }
+
+// Admin ...
+func (a *Admin) Admin(key int) bool {
+	if key == a.Key {
+		return true
+	}
+	return false
+}
