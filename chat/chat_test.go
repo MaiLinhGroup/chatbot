@@ -17,6 +17,6 @@ func TestNewNoToken(t *testing.T) {
 	_, err := New()
 	// then
 	if err == nil {
-		t.Errorf("Want error because token was not set, but got %v", err)
+		t.Error("Want error because no token found but error was nil.")
 	}
 }
