@@ -6,50 +6,48 @@ package main
 import (
 	"strings"
 
-	"github.com/MaiLinhGroup/chatbot/auth"
-	"github.com/MaiLinhGroup/chatbot/chat"
 	// standard libs
 
 	// 3rd party libs
+	"fmt"
 	log "github.com/goinggo/tracelog"
+	"io/ioutil"
+	"net/http"
+	"os"
 )
+
+const TELEGRAM = "https://api.telegram.org/bot"
 
 func main() {
 	log.Start(log.LevelInfo)
-	defer log.Stop()
 
-	chatbot, err := chat.New()
+	// load authentification informations
+	tgBotToken := os.Getenv("TELEGRAM_TOKEN")
+	// adminID := os.Getenv("ADMIN_ID")
+
+	// https://api.telegram.org/bot<token>/METHOD_NAME
+	getUpdatesRq := TELEGRAM + tgBotToken + "/getUpdates"
+
+	// make a get request
+	rs, err := http.Get(getUpdatesRq)
+	// process reponse and handle err
 	if err != nil {
-		log.Error(err, "main", "chat.New()")
-		return
+		panic(err)
 	}
 
-	userRq := make(chan chat.Message)
-	userFb := make(chan chat.Message)
-
-	go ChatHandler(userRq, userFb)
-
-	chatbot.Chat(userRq, userFb)
-}
-
-// ChatHandler ...
-func ChatHandler(userRequest, userFeedback chan chat.Message) error {
-	a, err := auth.CreateAdminUser()
+	bodyBytes, err := ioutil.ReadAll(rs.Body)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
-	for msg := range userRequest {
-		if a.Admin(msg.UserID) {
-			msg.Reply = "Hi Admin! Here my reply:\n"
-			msg.Reply += ProcessingUserRequest(msg.Request)
-		} else {
-			msg.Reply = "Hi " + msg.UserName + "! Sorry, currently I only talk to my admin."
-		}
-		userFeedback <- msg
-	}
+	bodyString := string(bodyBytes)
 
-	return nil
+	fmt.Println(bodyString)
+
+	defer func() {
+		rs.Body.Close()
+		log.Stop()
+	}()
 }
 
 // ReverseMessage takes a message and returns it in reverse order.
@@ -63,27 +61,4 @@ func ReverseMessage(msg string) (reverseMsg string) {
 	}
 
 	return
-}
-
-// ProcessingUserRequest ...
-func ProcessingUserRequest(request map[string]string) string {
-	var reply string
-	for cmd, arg := range request {
-		if arg == "" {
-			reply = "Hello World!"
-			break
-		}
-		switch cmd {
-		case "rev":
-			reply = ReverseMessage(arg)
-		case "":
-			// plain message no command, just echoing message
-			reply = arg
-		default:
-			// unknown command, ignoring argument
-			reply = "Sorry, unknown command: /" + cmd
-		}
-
-	}
-	return reply
 }
