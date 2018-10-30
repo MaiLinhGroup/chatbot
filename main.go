@@ -10,10 +10,11 @@ import (
 
 	// 3rd party libs
 	"fmt"
-	log "github.com/goinggo/tracelog"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	log "github.com/goinggo/tracelog"
 )
 
 const TELEGRAM = "https://api.telegram.org/bot"
@@ -43,6 +44,24 @@ func main() {
 	bodyString := string(bodyBytes)
 
 	fmt.Println(bodyString)
+
+	// answering when get updates
+	// https://api.telegram.org/bot[BOT_API_KEY]/sendMessage?chat_id=[MY_CHANNEL_NAME]&text=[MY_MESSAGE_TEXT]
+	sendMessageRq := TELEGRAM + tgBotToken + "/sendMessage?chat_id=480821480&text=Hello User!"
+
+	ans, err := http.Get(sendMessageRq)
+	if err != nil {
+		panic(err)
+	}
+
+	bodyBytes, err = ioutil.ReadAll(ans.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	ansString := string(bodyBytes)
+
+	fmt.Println(ansString)
 
 	defer func() {
 		rs.Body.Close()
