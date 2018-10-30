@@ -29,6 +29,27 @@ func main() {
 	// https://api.telegram.org/bot<token>/METHOD_NAME
 	getUpdatesRq := TELEGRAM + tgBotToken + "/getUpdates"
 
+	// https://api.telegram.org/bot[BOT_API_KEY]/sendMessage?chat_id=[MY_CHANNEL_NAME]&text=[MY_MESSAGE_TEXT]
+	sendMessageRq := TELEGRAM + tgBotToken + "/sendMessage?chat_id=480821480&text=Hello User!"
+
+	GetUpdateAndAnswer(getUpdatesRq, sendMessageRq)
+
+}
+
+// ReverseMessage takes a message and returns it in reverse order.
+// One or more leading and trailing whitespaces got to be removed,
+// but no further modification will be performed on the original message.
+func ReverseMessage(msg string) (reverseMsg string) {
+	msg = strings.TrimSpace(msg)
+
+	for i := len(msg) - 1; i >= 0; i-- {
+		reverseMsg += string(msg[i])
+	}
+
+	return
+}
+
+func GetUpdateAndAnswer(getUpdatesRq, sendMessageRq string) {
 	// make a get request
 	rs, err := http.Get(getUpdatesRq)
 	// process reponse and handle err
@@ -46,9 +67,6 @@ func main() {
 	fmt.Println(bodyString)
 
 	// answering when get updates
-	// https://api.telegram.org/bot[BOT_API_KEY]/sendMessage?chat_id=[MY_CHANNEL_NAME]&text=[MY_MESSAGE_TEXT]
-	sendMessageRq := TELEGRAM + tgBotToken + "/sendMessage?chat_id=480821480&text=Hello User!"
-
 	ans, err := http.Get(sendMessageRq)
 	if err != nil {
 		panic(err)
@@ -65,19 +83,7 @@ func main() {
 
 	defer func() {
 		rs.Body.Close()
+		ans.Body.Close()
 		log.Stop()
 	}()
-}
-
-// ReverseMessage takes a message and returns it in reverse order.
-// One or more leading and trailing whitespaces got to be removed,
-// but no further modification will be performed on the original message.
-func ReverseMessage(msg string) (reverseMsg string) {
-	msg = strings.TrimSpace(msg)
-
-	for i := len(msg) - 1; i >= 0; i-- {
-		reverseMsg += string(msg[i])
-	}
-
-	return
 }
